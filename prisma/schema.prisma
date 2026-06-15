@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum PaymentMethod {
+  CASH
+  DEBIT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  username  String   @unique
+  password  String   // Harus di-hash (misal: bcrypt)
+  role      Role     @default(CASHIER)
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shifts    Shift[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  isDeleted Boolean   @default(false) // Standarisasi: Soft delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(12, 2)
+  stock       Int      @default(0)
+  image       String?  // Menyimpan path/URL file gambar
+  categoryId  Int?
+  isDeleted   Boolean  @default(false) // Standarisasi: Soft delete
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category         Category?         @relation(fields: [categoryId], references: [id])
+  transactionItems TransactionItem[]
+}
+
+model Shift {
+  id          String    @id @default(uuid())
+  cashierId   String
+  startTime   DateTime  @default(now())
+  endTime     DateTime?
+  initialCash Decimal   @db.Decimal(12, 2)
+  finalCash   Decimal?  @db.Decimal(12, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  cashier      User          @relation(fields: [cashierId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id              String        @id @default(uuid())
+  invoiceNumber   String        @unique
+  shiftId         String
+  totalAmount     Decimal       @db.Decimal(12, 2)
+  paymentMethod   PaymentMethod
+  cashTendered    Decimal?      @db.Decimal(12, 2) // Nominal cash yang dibayar (jika cash)
+  changeAmount    Decimal?      @db.Decimal(12, 2) // Kembalian (jika cash)
+  debitCardNumber String?       // Nomor kartu (jika debit)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  shift            Shift             @relation(fields: [shiftId], references: [id])
+  transactionItems TransactionItem[]
+}
+
+model TransactionItem {
+  id                 String   @id @default(uuid())
+  transactionId      String
+  productId          String
+  quantity           Int
+  priceAtTransaction Decimal  @db.Decimal(12, 2) // Snapshot harga
+  subtotal           Decimal  @db.Decimal(12, 2)
+  createdAt          DateTime @default(now())
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id])
+}
