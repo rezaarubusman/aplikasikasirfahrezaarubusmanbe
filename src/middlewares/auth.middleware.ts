@@ -1,68 +1,92 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Role } from "../generated/prisma/enums.js";
+import { Role } from "../../generated/prisma/enums.js";
 import { ApiError } from "../utils/api-error.js";
-import { prisma } from "../lib/prisma.js";
+
+interface JwtPayload {
+  id: string;
+  username: string;
+  role: Role;
+}
 
 export class AuthMiddleware {
-  //Digunakan untuk mengecek token yang dikirim dari user valid atau tidak
   verifyToken = (secretKey: string) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-      const authHeader = req.headers.authorization;
-      let token: string | undefined;
+    return (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
+      const authHeader =
+        req.headers.authorization;
 
-      if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.split(" ")[1];
+      if (
+        !authHeader ||
+        !authHeader.startsWith("Bearer ")
+      ) {
+        return next(
+          new ApiError(
+            "No token provided",
+            401
+          )
+        );
       }
 
-      if (!token) {
-        token = req.cookies?.accessToken;
-      }
-
-      if (!token) {
-        return next(new ApiError("No token provided", 401));
-      }
+      const token =
+        authHeader.split(" ")[1];
 
       try {
-        const payload = jwt.verify(token, secretKey);
-        res.locals.existingUser = payload;
+        const payload =
+          jwt.verify(
+            token,
+            secretKey
+          ) as JwtPayload;
+
+        res.locals.existingUser =
+          payload;
+
         next();
-      } catch (err: any) {
-        if (err instanceof jwt.TokenExpiredError) {
-          return next(new ApiError("Token expired", 401));
-        }
-
-        return next(new ApiError("Token invalid", 401));
-      }
-    };
-  };
-
-  verifyRole = (roles: Role[]) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const userRole = res.locals.existingUser?.role;
-
-        if (!userRole || !roles.includes(userRole)) {
-          // Gunakan next() untuk error agar ditangkap oleh global error handler
+      } catch (err) {
+        if (
+          err instanceof
+          jwt.TokenExpiredError
+        ) {
           return next(
-            new ApiError("You don't have access to this resource", 403),
+            new ApiError(
+              "Token expired",
+              401
+            )
           );
         }
 
-        // WAJIB DIPANGGIL: Agar lanjut ke controller
-        next();
-      } catch (err) {
-        next(err);
+        return next(
+          new ApiError(
+            "Token invalid",
+            401
+          )
+        );
       }
     };
   };
 
-  verifyVerified = () => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-      const userId = res.locals.existingUser?.id;
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (!user?.isVerified) {
-        return next(new ApiError("Akun belum terverifikasi", 403));
+  verifyRole = (...roles: Role[]) => {
+    return (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
+      const userRole =
+        res.locals.existingUser?.role;
+
+      if (
+        !userRole ||
+        !roles.includes(userRole)
+      ) {
+        return next(
+          new ApiError(
+            "You don't have access to this resource",
+            403
+          )
+        );
       }
       next();
     };
