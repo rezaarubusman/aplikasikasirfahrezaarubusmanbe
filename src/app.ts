@@ -74,6 +74,9 @@ export class App {
     const usersController = new UsersController(usersService);
     const usersRouter = new UsersRouter(usersController, validationMiddleware, authMiddleware);
 
+    const categoriesService = new ProductService(prismaClient);
+    const categoriesController = new ProductController(categoriesService);
+    const categoriesRouter = new ProductRouter(categoriesController, validationMiddleware, authMiddleware);
 
     this.app.use(
       "/auth",
@@ -94,6 +97,10 @@ export class App {
     this.app.use(
       "/users",
       usersRouter.getRouter()
+    );
+    this.app.use(
+      "/categories",
+      categoriesRouter.getRouter()
     );
   };
 
