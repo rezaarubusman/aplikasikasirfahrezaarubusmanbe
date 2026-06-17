@@ -23,6 +23,9 @@ import { ShiftService } from "./modules/shift/shift.service.js";
 import { TransactionController } from "./modules/transactions/transaction.controller.js";
 import { TransactionRouter } from "./modules/transactions/transaction.router.js";
 import { TransactionService } from "./modules/transactions/transaction.service.js";
+import { UsersService } from "./modules/users/users.service.js";
+import { UsersController } from "./modules/users/users.controller.js";
+import { UsersRouter } from "./modules/users/users.router.js";
 
 const PORT = 8000;
 
@@ -53,38 +56,24 @@ export class App {
 
     const authService = new AuthService(prismaClient);
     const authController = new AuthController(authService);
-    const authRouter = new AuthRouter(
-      authController,
-      validationMiddleware,
-      authMiddleware
-    );
+    const authRouter = new AuthRouter(authController, validationMiddleware, authMiddleware);
 
     const productService = new ProductService(prismaClient);
     const productController = new ProductController(productService);
-    const productRouter = new ProductRouter(
-      productController,
-      validationMiddleware,
-      authMiddleware
-    );
+    const productRouter = new ProductRouter(productController, validationMiddleware, authMiddleware);
 
     const shiftService = new ShiftService(prismaClient);
     const shiftController = new ShiftController(shiftService);
-    const shiftRoute = new shiftRouter(
-      shiftController,
-      validationMiddleware,
-      authMiddleware
-    );
+    const shiftRoute = new shiftRouter(shiftController, validationMiddleware, authMiddleware);
 
-    const transactionService =
-      new TransactionService(prismaClient);
-    const transactionController =
-      new TransactionController(transactionService);
-    const transactionRouter =
-      new TransactionRouter(
-        transactionController,
-        validationMiddleware,
-        authMiddleware
-      );
+    const transactionService = new TransactionService(prismaClient);
+    const transactionController = new TransactionController(transactionService);
+    const transactionRouter = new TransactionRouter(transactionController, validationMiddleware, authMiddleware);
+
+    const usersService = new UsersService(prismaClient);
+    const usersController = new UsersController(usersService);
+    const usersRouter = new UsersRouter(usersController, validationMiddleware, authMiddleware);
+
 
     this.app.use(
       "/auth",
@@ -101,6 +90,10 @@ export class App {
     this.app.use(
       "/transactions",
       transactionRouter.getRouter()
+    );
+    this.app.use(
+      "/users",
+      usersRouter.getRouter()
     );
   };
 
