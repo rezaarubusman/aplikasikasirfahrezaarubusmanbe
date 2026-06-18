@@ -12,62 +12,30 @@ export class TransactionController {
     private service: TransactionService
   ) {}
 
-create = async (
-  req: Request,
-  res: Response
-) => {
+  create = async (req: Request, res: Response) => {
+    const body = plainToInstance(CreateTransactionDTO, req.body);
 
-  const body =
-    plainToInstance(
-      CreateTransactionDTO,
-      req.body
-    );
+    const result = await this.service.create(this.getUser(res).id, body);
 
-  const result =
-    await this.service.create(
-      this.getUser(res).id,
-      body
-    );
+    res.status(201).send(result);
+  };
 
-  res.status(201).send(result);
-};
+  findAll = async (req: Request, res: Response) => {
+    const query = plainToInstance(FindTransactionQueryDTO, req.query);
 
-findAll = async (
-  req: Request,
-  res: Response
-) => {
+    const result = await this.service.findAll(query.shiftId);
 
-  const query =
-    plainToInstance(
-      FindTransactionQueryDTO,
-      req.query
-    );
+    res.status(200).send(result);
+  };
 
-  const result =
-    await this.service.findAll(
-      query.shiftId
-    );
+  findOne = async (
+    req: Request<{ id: string }>,
+    res: Response
+  ) => { 
+    const result = await this.service.findById(req.params.id, this.getUser(res));
 
-  res.status(200).send(result);
-};
+    res.status(200).send(result);
+  };
 
-findOne = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-
-  const result =
-    await this.service.findById(
-      req.params.id,
-      this.getUser(res)
-    );
-
-  res.status(200).send(result);
-};
-
-private getUser = (
-  res: Response
-): AuthUser =>
-  res.locals.user ??
-  res.locals.existingUser;
+  private getUser = (res: Response): AuthUser => res.locals.user ?? res.locals.existingUser;
 }

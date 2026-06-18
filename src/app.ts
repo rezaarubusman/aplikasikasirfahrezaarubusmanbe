@@ -18,7 +18,7 @@ import { ProductController } from "./modules/products/product.controller.js";
 import { ProductRouter } from "./modules/products/product.router.js";
 import { ProductService } from "./modules/products/product.service.js";
 import { ShiftController } from "./modules/shift/shift.controller.js";
-import { shiftRouter } from "./modules/shift/shift.router.js";
+import { ShiftRouter } from "./modules/shift/shift.router.js";
 import { ShiftService } from "./modules/shift/shift.service.js";
 import { TransactionController } from "./modules/transactions/transaction.controller.js";
 import { TransactionRouter } from "./modules/transactions/transaction.router.js";
@@ -29,6 +29,13 @@ import { UsersRouter } from "./modules/users/users.router.js";
 import { InventoryService } from "./modules/inventory/inventory.service.js";
 import { InventoryController } from "./modules/inventory/inventory.controller.js";
 import { InventoryRouter } from "./modules/inventory/inventory.router.js";
+import { ReportService } from "./modules/reports/reports.service.js";
+import { ReportController } from "./modules/reports/reports.controller.js";
+import { ReportRouter } from "./modules/reports/reports.router.js";
+import { CategoryService } from "./modules/category/category.service.js";
+import { CategoryController } from "./modules/category/category.controller.js";
+import { CategoryRouter } from "./modules/category/category.router.js";
+import { CloudinaryService } from "./modules/cloudinary/cloudinary.service.js";
 
 const PORT = 8000;
 
@@ -56,18 +63,19 @@ export class App {
     const authMiddleware = new AuthMiddleware();
     const validationMiddleware = new ValidationMiddleware();
     const uploadMiddleware = new UploadMiddleware();
+    const cloudinaryService = new CloudinaryService();
 
     const authService = new AuthService(prismaClient);
     const authController = new AuthController(authService);
     const authRouter = new AuthRouter(authController, validationMiddleware, authMiddleware);
 
-    const productService = new ProductService(prismaClient);
-    const productController = new ProductController(productService);
-    const productRouter = new ProductRouter(productController, validationMiddleware, authMiddleware);
+    const productService = new ProductService(prismaClient, cloudinaryService);
+    const productController = new ProductController(productService, uploadMiddleware);
+    const productRouter = new ProductRouter(productController, validationMiddleware, authMiddleware, uploadMiddleware);
 
     const shiftService = new ShiftService(prismaClient);
     const shiftController = new ShiftController(shiftService);
-    const shiftRoute = new shiftRouter(shiftController, validationMiddleware, authMiddleware);
+    const shiftRouter = new ShiftRouter(shiftController, validationMiddleware, authMiddleware);
 
     const transactionService = new TransactionService(prismaClient);
     const transactionController = new TransactionController(transactionService);
@@ -77,13 +85,17 @@ export class App {
     const usersController = new UsersController(usersService);
     const usersRouter = new UsersRouter(usersController, validationMiddleware, authMiddleware);
 
-    const categoriesService = new ProductService(prismaClient);
-    const categoriesController = new ProductController(categoriesService);
-    const categoriesRouter = new ProductRouter(categoriesController, validationMiddleware, authMiddleware);
+    const categoriesService = new CategoryService(prismaClient);
+    const categoriesController = new CategoryController(categoriesService);
+    const categoriesRouter = new CategoryRouter(categoriesController, validationMiddleware, authMiddleware);
 
     const inventoryService = new InventoryService(prismaClient);
     const inventoryController = new InventoryController(inventoryService);
     const inventoryRouter = new InventoryRouter(inventoryController, validationMiddleware, authMiddleware);
+
+    const reportService = new ReportService(prismaClient);
+    const reportController = new ReportController(reportService);
+    const reportRouter = new ReportRouter(reportController, authMiddleware, validationMiddleware);
 
     this.app.use(
       "/auth",
@@ -95,7 +107,7 @@ export class App {
     );
     this.app.use(
       "/shifts",
-      shiftRoute.getRouter()
+      shiftRouter.getRouter()
     );
     this.app.use(
       "/transactions",
@@ -112,6 +124,10 @@ export class App {
     this.app.use(
       "/inventory",
       inventoryRouter.getRouter()
+    )
+    this.app.use(
+      "/reports",
+      reportRouter.getRouter()
     )
   };
 

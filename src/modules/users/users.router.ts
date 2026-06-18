@@ -3,6 +3,7 @@ import { UsersController } from "./users.controller.js";
 import { ValidationMiddleware } from "../../middlewares/validation.middleware.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { CreateUserDTO, UpdateUserDTO } from "./dto/users.dto.js";
+import { Role } from "../../../generated/prisma/enums.js";
 
 export class UsersRouter {
   private router: Router;
@@ -19,6 +20,7 @@ export class UsersRouter {
   private initRoutes = (): void => {
     // Terapkan middleware auth ke semua route users
     this.router.use(this.authMiddleware.verifyToken);
+    this.router.use(this.authMiddleware.verifyRole(Role.ADMIN));
 
     this.router.get(
       "/",

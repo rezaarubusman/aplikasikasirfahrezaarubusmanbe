@@ -10,18 +10,14 @@ export class AuthService {
     private prisma: PrismaClient
   ) {}
 
-  private generateToken(user: {
-    id: string;
-    username: string;
-    role: Role;
-  }) {
+  private generateToken(user: { id: string; username: string; role: Role }) {
     return jwt.sign(
       {
         id: user.id,
         username: user.username,
         role: user.role,
       },
-      process.env.JWT_SECRET as string,
+      process.env.JWT_SECRET!,
       {
         expiresIn: "1d",
       }
@@ -29,23 +25,18 @@ export class AuthService {
   }
 
   register = async (body: RegisterDTO) => {
-    const existingUser =
-      await this.prisma.user.findUnique({
-        where: {
-          username: body.username,
-        },
-      });
+    const existingUser = await this.prisma.user.findUnique({
+      where: { username: body.username },
+    });
 
     if (existingUser) {
       throw new ApiError("Username already exists", 400);
     }
 
-    const hashedPassword =
-      await hashPassword(body.password);
+    const hashedPassword = await hashPassword(body.password);
 
-    const user =
-      await this.prisma.user.create({
-        data: {
+    const user = await this.prisma.user.create({
+      data: {
           name: body.name,
           username: body.username,
           password: hashedPassword,
@@ -65,29 +56,21 @@ export class AuthService {
   };
 
   login = async (body: LoginDTO) => {
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          username: body.username,
-        },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { username: body.username },
+    });
 
     if (!user) {
       throw new ApiError("Invalid credentials", 400);
     }
 
-    const isMatch =
-      await comparePassword(
-        body.password,
-        user.password
-      );
+    const isMatch = await comparePassword(body.password, user.password);
 
     if (!isMatch) {
       throw new ApiError("Invalid credentials", 400);
     }
 
-    const token =
-      this.generateToken(user);
+    const token = this.generateToken(user);
 
     return {
       message: "Login success",
@@ -104,12 +87,9 @@ export class AuthService {
   };
 
   me = async (userId: string) => {
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
 
     if (!user) {
       throw new ApiError("User not found", 400);

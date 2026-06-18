@@ -6,7 +6,7 @@ import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { OpenShiftDTO } from "./dto/shift.dto.js";
 import { CloseShiftDTO } from "./dto/shift.dto.js";
 
-export class shiftRouter {
+export class ShiftRouter {
     private router: Router;
 
     constructor(
@@ -22,35 +22,23 @@ private initRoutes = () => {
   this.router.post(
     "/open",
     this.auth.verifyToken,
-    this.auth.verifyRole(
-      Role.CASHIER,
-      Role.ADMIN
-    ),
-    this.validation.validateBody(
-      OpenShiftDTO
-    ),
+    this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+    this.validation.validateBody(OpenShiftDTO),
     this.controller.openShift
   );
 
   this.router.patch(
     "/:id/close",
     this.auth.verifyToken,
-    this.auth.verifyRole(
-      Role.CASHIER,
-      Role.ADMIN
-    ),
-    this.validation.validateBody(
-      CloseShiftDTO
-    ),
+    this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+    this.validation.validateBody(CloseShiftDTO),
     this.controller.closeShift
   );
 
   this.router.get(
     "/",
     this.auth.verifyToken,
-    this.auth.verifyRole(
-      Role.ADMIN
-    ),
+    this.auth.verifyRole(Role.ADMIN),
     this.controller.findAll
   );
 
