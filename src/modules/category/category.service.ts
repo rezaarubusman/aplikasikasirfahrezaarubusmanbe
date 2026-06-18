@@ -2,7 +2,7 @@ import { PrismaClient } from "../../../generated/prisma/client.js";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/category.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
-export class categoriesService {
+export class CategoryService {
   constructor(
     private prisma: PrismaClient
   ) {}

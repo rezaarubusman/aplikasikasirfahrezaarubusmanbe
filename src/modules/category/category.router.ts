@@ -1,15 +1,15 @@
 import express, { Router } from "express";
 import { Role } from "../../../generated/prisma/enums.js"
-import { categoriesController } from "./category.controller.js";
+import { CategoryController } from "./category.controller.js";
 import { ValidationMiddleware } from "../../middlewares/validation.middleware.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/category.dto.js";
 
-export class CategoriesRouter {
+export class CategoryRouter {
   private router: Router;
 
   constructor(
-    private controller: categoriesController,
+    private controller: CategoryController,
     private validationMiddleware: ValidationMiddleware,
     private authMiddleware: AuthMiddleware
   ) {

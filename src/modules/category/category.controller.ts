@@ -1,12 +1,12 @@
 import { plainToInstance } from "class-transformer";
 import { Request, Response } from "express";
-import { categoriesService } from "./category.service.js";
+import { CategoryService } from "./category.service.js";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/category.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
-export class categoriesController {
+export class CategoryController {
   constructor(
-    private service: categoriesService
+    private service: CategoryService
   ) {}
 
   // Helper untuk mengubah dan memvalidasi ID menjadi number

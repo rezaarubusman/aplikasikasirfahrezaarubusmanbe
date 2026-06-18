@@ -20,39 +20,30 @@ export class TransactionRouter {
     this.initRoutes();
   }
 
-private initRoutes = () => {
-  this.router.post(
-    "/",
-    this.auth.verifyToken,
-    this.auth.verifyRole(
-      Role.CASHIER,
-      Role.ADMIN
-    ),
-    this.validation.validateBody(
-      CreateTransactionDTO
-    ),
-    this.controller.create
-  );
+  private initRoutes = () => {
+    this.router.post(
+      "/",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+      this.validation.validateBody(CreateTransactionDTO),
+      this.controller.create
+    );
 
-  this.router.get(
-    "/",
-    this.auth.verifyToken,
-    this.auth.verifyRole(
-      Role.ADMIN
-    ),
-    this.validation.validateQuery(
-      FindTransactionQueryDTO
-    ),
-    this.controller.findAll
-  );
+    this.router.get(
+      "/",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.ADMIN),
+      this.validation.validateQuery(FindTransactionQueryDTO),
+      this.controller.findAll
+    );
 
-  this.router.get(
-    "/:id",
-    this.auth.verifyToken,
-    this.controller.findOne
-  );
-};
+    this.router.get(
+      "/:id",
+      this.auth.verifyToken,
+      this.controller.findOne
+    );
+  };
 
-getRouter = (): Router =>
-  this.router;
+  getRouter = (): Router =>
+    this.router;
 }

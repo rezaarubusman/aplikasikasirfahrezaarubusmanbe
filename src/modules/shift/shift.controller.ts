@@ -9,67 +9,36 @@ export class ShiftController {
     private service: ShiftService
   ) {}
 
-openShift = async (
-  req: Request,
-  res: Response
-) => {
+  openShift = async (req: Request, res: Response) => {
+    const body = plainToInstance(OpenShiftDTO, req.body);
 
-  const body =
-    plainToInstance(
-      OpenShiftDTO,
-      req.body
-    );
+    const result = await this.service.openShift(res.locals.user.id, body);
 
-  const result =
-    await this.service.openShift(
-      res.locals.user.id,
-      body
-    );
+    res.status(201).send(result);
+  };
 
-  res.status(201).send(result);
-};
+  closeShift = async (req: Request<{ id: string }>, res: Response) => {
+    const body = plainToInstance(CloseShiftDTO, req.body);
 
-closeShift = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-
-  const body =
-    plainToInstance(
-      CloseShiftDTO,
-      req.body
-    );
-
-  const result =
-    await this.service.closeShift(
+    const result = await this.service.closeShift(
       req.params.id,
       body
     );
 
-  res.status(200).send(result);
-};
+    res.status(200).send(result);
+  };
 
-findAll = async (
-  req: Request,
-  res: Response
-) => {
+  findAll = async (req: Request, res: Response) => {
+    const result = await this.service.findAll();
 
-  const result =
-    await this.service.findAll();
+    res.status(200).send(result);
+  };
 
-  res.status(200).send(result);
-};
-
-findOne = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-
-  const result =
-    await this.service.findById(
+  findOne = async (req: Request<{ id: string }>, res: Response) => {
+    const result = await this.service.findById(
       req.params.id
     );
 
-  res.status(200).send(result);
-};
+    res.status(200).send(result);
+  };
 }
