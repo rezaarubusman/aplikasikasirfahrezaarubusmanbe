@@ -26,6 +26,9 @@ import { TransactionService } from "./modules/transactions/transaction.service.j
 import { UsersService } from "./modules/users/users.service.js";
 import { UsersController } from "./modules/users/users.controller.js";
 import { UsersRouter } from "./modules/users/users.router.js";
+import { InventoryService } from "./modules/inventory/inventory.service.js";
+import { InventoryController } from "./modules/inventory/inventory.controller.js";
+import { InventoryRouter } from "./modules/inventory/inventory.router.js";
 
 const PORT = 8000;
 
@@ -78,6 +81,10 @@ export class App {
     const categoriesController = new ProductController(categoriesService);
     const categoriesRouter = new ProductRouter(categoriesController, validationMiddleware, authMiddleware);
 
+    const inventoryService = new InventoryService(prismaClient);
+    const inventoryController = new InventoryController(inventoryService);
+    const inventoryRouter = new InventoryRouter(inventoryController, validationMiddleware, authMiddleware);
+
     this.app.use(
       "/auth",
       authRouter.getRouter()
@@ -102,6 +109,10 @@ export class App {
       "/categories",
       categoriesRouter.getRouter()
     );
+    this.app.use(
+      "/inventory",
+      inventoryRouter.getRouter()
+    )
   };
 
   private handleError = () => {
