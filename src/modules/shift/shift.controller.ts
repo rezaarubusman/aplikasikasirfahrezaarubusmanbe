@@ -41,4 +41,16 @@ export class ShiftController {
 
     res.status(200).send(result);
   };
+
+  getActiveShift = async (req: Request, res: Response) => {
+  const userId = res.locals.user.id; 
+  
+  const result = await this.service.getActiveShift(userId);
+
+  if (!result) {
+    return res.status(404).json({ message: "Tidak ada shift aktif" });
+  }
+
+  res.status(200).send(result);
+}
 }

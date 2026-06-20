@@ -17,38 +17,45 @@ export class ShiftRouter {
         this.router = express.Router();
         this.initRoutes();
     }
-private initRoutes = () => {
+  private initRoutes = () => {
 
-  this.router.post(
-    "/open",
-    this.auth.verifyToken,
-    this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
-    this.validation.validateBody(OpenShiftDTO),
-    this.controller.openShift
-  );
+    this.router.post(
+      "/open",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+      this.validation.validateBody(OpenShiftDTO),
+      this.controller.openShift
+    );
 
-  this.router.patch(
-    "/:id/close",
-    this.auth.verifyToken,
-    this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
-    this.validation.validateBody(CloseShiftDTO),
-    this.controller.closeShift
-  );
+    this.router.patch(
+      "/:id/close",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+      this.validation.validateBody(CloseShiftDTO),
+      this.controller.closeShift
+    );
 
-  this.router.get(
-    "/",
-    this.auth.verifyToken,
-    this.auth.verifyRole(Role.ADMIN),
-    this.controller.findAll
-  );
+    this.router.get(
+      "/",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.ADMIN),
+      this.controller.findAll
+    );
 
-  this.router.get(
-    "/:id",
-    this.auth.verifyToken,
-    this.controller.findOne
-  );
-};
+    this.router.get(
+      "/active",
+      this.auth.verifyToken,
+      this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
+      this.controller.getActiveShift
+    );
 
-getRouter = () : Router =>
-    this.router;
-}
+    this.router.get(
+      "/:id",
+      this.auth.verifyToken,
+      this.controller.findOne
+    );
+  };
+
+  getRouter = () : Router =>
+      this.router;
+  }
