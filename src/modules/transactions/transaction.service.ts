@@ -144,11 +144,19 @@ export class TransactionService {
     };
   };
 
-  findAll = async (shiftId?: string) => {
+  findAll = async (shiftId: string | undefined, user: AuthUser) => {
+    const shiftFilter =
+      user.role === Role.ADMIN
+        ? { shiftId }
+        : {
+            shiftId,
+            shift: {
+              cashierId: user.id,
+            },
+          };
+
     return this.prisma.transaction.findMany({
-      where: {
-        shiftId,
-      },
+      where: shiftFilter,
       include: this.transactionInclude,
       orderBy: {
         createdAt: "desc",

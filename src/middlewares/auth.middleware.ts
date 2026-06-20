@@ -37,7 +37,7 @@ export class AuthMiddleware {
       const payload =
         jwt.verify(
           token,
-          process.env.JWT_SECRET as string
+          process.env.JWT_ACCESS_SECRET as string
         ) as JwtPayload;
 
       res.locals.existingUser =
