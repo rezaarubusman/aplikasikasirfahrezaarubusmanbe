@@ -23,7 +23,7 @@ export class TransactionController {
   findAll = async (req: Request, res: Response) => {
     const query = plainToInstance(FindTransactionQueryDTO, req.query);
 
-    const result = await this.service.findAll(query.shiftId);
+    const result = await this.service.findAll(query.shiftId, this.getUser(res));
 
     res.status(200).send(result);
   };

@@ -32,7 +32,7 @@ export class TransactionRouter {
     this.router.get(
       "/",
       this.auth.verifyToken,
-      this.auth.verifyRole(Role.ADMIN),
+      this.auth.verifyRole(Role.CASHIER, Role.ADMIN),
       this.validation.validateQuery(FindTransactionQueryDTO),
       this.controller.findAll
     );
