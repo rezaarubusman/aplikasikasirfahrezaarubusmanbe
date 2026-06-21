@@ -3,6 +3,10 @@ import { hashPassword } from "../../lib/argon.js";
 import { CreateUserDTO, UpdateUserDTO } from "./dto/users.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
+interface UserFilter {
+  q?: string;
+}
+
 export class UsersService {
   constructor(
     private prisma: PrismaClient
@@ -40,10 +44,16 @@ export class UsersService {
     };
   };
 
-  findAll = async () => {
+  findAll = async (filter: UserFilter) => {
     const users = await this.prisma.user.findMany({
       where: {
         isDeleted: false,
+          ...(filter.q && {
+          OR: [
+            { name: { contains: filter.q, mode: 'insensitive' } },
+            { username: { contains: filter.q, mode: 'insensitive' } },
+          ],
+        })
       },
       select: {
         id: true,

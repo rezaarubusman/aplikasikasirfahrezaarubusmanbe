@@ -25,7 +25,8 @@ export class UsersController {
     req: Request,
     res: Response
   ) => {
-    const result = await this.service.findAll();
+    const q = req.query.q as string;
+    const result = await this.service.findAll({q});
     res.status(200).send(result);
   };
 
