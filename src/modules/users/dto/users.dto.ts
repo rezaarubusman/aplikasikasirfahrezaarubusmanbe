@@ -1,4 +1,5 @@
 import {
+  Allow,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -33,6 +34,7 @@ export class UpdateUserDTO {
 
   @IsOptional()
   @IsString()
+  @Allow()
   @MinLength(8, { message: "Password must be at least 8 characters" })
   password?: string;
 

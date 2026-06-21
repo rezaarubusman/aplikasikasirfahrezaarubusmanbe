@@ -65,14 +65,14 @@ export class ShiftService {
   };
 
   closeShift = async (
-    shiftId: string,
+    cashierId: string,
     body: CloseShiftDTO
   ) => {
 
     const shift =
       await this.prisma.shift.findUnique({
         where: {
-          id: shiftId,
+          id: cashierId,
         },
       });
 
@@ -93,7 +93,7 @@ export class ShiftService {
     const updatedShift =
       await this.prisma.shift.update({
         where: {
-          id: shiftId,
+          id: cashierId,
         },
         data: {
           endTime: new Date(),
