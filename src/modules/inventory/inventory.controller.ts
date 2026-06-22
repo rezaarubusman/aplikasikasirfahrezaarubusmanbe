@@ -9,15 +9,13 @@ export class InventoryController {
   create = async (req: Request, res: Response) => {
     const body = plainToInstance(CreateStockMovementDTO, req.body);
     
-    // Asumsi req.user di-set oleh AuthMiddleware
-    const userId = (req as any).user.id; 
+    const userId = res.locals.user.id; 
 
     const result = await this.service.create(body, userId);
     res.status(201).send(result);
   };
 
   getAll = async (req: Request, res: Response) => {
-    // Memungkinkan filter query string: /api/inventory?productId=xxx
     const productId = req.query.productId as string | undefined;
     
     const result = await this.service.findAll(productId);
