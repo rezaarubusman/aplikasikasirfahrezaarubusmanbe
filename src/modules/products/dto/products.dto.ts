@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import {
   IsInt,
   IsNotEmpty,
@@ -17,11 +18,13 @@ export class CreateProductDTO {
   @IsString()
   description?: string;
 
+  @Type(() => Number) 
   @IsNumber()
   @IsPositive()
   price!: number;
 
   @IsOptional()
+  @Type(() => Number) 
   @IsInt()
   @Min(0)
   stock?: number;
@@ -31,6 +34,7 @@ export class CreateProductDTO {
   image?: string;
 
   @IsOptional()
+  @Type(() => Number) 
   @IsInt()
   categoryId?: number;
 }
@@ -45,10 +49,12 @@ export class UpdateProductDTO {
   description?: string;
 
   @IsOptional()
+  @Type(() => Number) 
   @IsNumber()
   price?: number;
 
   @IsOptional()
+  @Type(() => Number) 
   @IsInt()
   @Min(0)
   stock?: number;
@@ -58,6 +64,7 @@ export class UpdateProductDTO {
   image?: string;
 
   @IsOptional()
+  @Type(() => Number) 
   @IsInt()
   categoryId?: number;
 }
