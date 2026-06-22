@@ -7,7 +7,6 @@ export class ReportController {
   constructor(private service: ReportService) {}
 
   getSalesSummary = async (req: Request, res: Response) => {
-    // Karena data datang dari query string, kita mapping dari req.query
     const query = plainToInstance(DateRangeDTO, req.query);
 
     const result = await this.service.getSalesSummary(
@@ -38,6 +37,12 @@ export class ReportController {
       query.endDate,
       query.cashierId
     );
+
+    res.status(200).send(result);
+  };
+
+  getDashboardStats = async (req: Request, res: Response) => {
+    const result = await this.service.getDashboardStats();
 
     res.status(200).send(result);
   };
