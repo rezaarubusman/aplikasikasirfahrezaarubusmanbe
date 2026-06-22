@@ -161,4 +161,38 @@ export class ReportService {
       }
     };
   };
+
+  getDashboardStats = async () => {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const todayTransactions = await this.prisma.transaction.aggregate({
+      where: {
+        createdAt: { gte: startOfToday },
+      },
+      _sum: { totalAmount: true },
+      _count: { id: true },
+    });
+
+    const totalTransactions = await this.prisma.transaction.aggregate({
+      _sum: { totalAmount: true },
+    });
+
+    const activeCashiersCount = await this.prisma.user.count({
+      where: { 
+        role: "CASHIER", 
+        isDeleted: false 
+      },
+    });
+
+    return {
+      message: "Success fetch dashboard stats",
+      data: {
+        todaySales: Number(todayTransactions._sum.totalAmount || 0),
+        todayTxCount: todayTransactions._count.id || 0,
+        activeCashiers: activeCashiersCount,
+        totalSales: Number(totalTransactions._sum.totalAmount || 0),
+      },
+    };
+  };
 }

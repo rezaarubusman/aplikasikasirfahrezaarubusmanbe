@@ -20,25 +20,27 @@ export class ReportRouter {
     this.router.use(this.authMiddleware.verifyToken);
     this.router.use(this.authMiddleware.verifyRole("ADMIN"));
 
-    // Endpoint: GET /api/reports/sales?startDate=2024-01-01&endDate=2024-01-31
     this.router.get(
       "/sales",
       this.validationMiddleware.validateQuery(DateRangeDTO),
       this.controller.getSalesSummary
     );
 
-    // Endpoint: GET /api/reports/top-products?startDate=2024-01-01&endDate=2024-01-31
     this.router.get(
       "/top-products",
       this.validationMiddleware.validateQuery(DateRangeDTO),
       this.controller.getTopProducts
     );
 
-    // Endpoint: GET /api/reports/shift-discrepancies?startDate=...&endDate=...&cashierId=...
     this.router.get(
       "/shift-discrepancies",
       this.validationMiddleware.validateQuery(DateRangeDTO),
       this.controller.getShiftDiscrepancies
+    );
+
+    this.router.get(
+      "/dashboard",
+      this.controller.getDashboardStats
     );
   };
 
