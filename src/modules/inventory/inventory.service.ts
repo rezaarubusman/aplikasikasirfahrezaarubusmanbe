@@ -7,7 +7,6 @@ export class InventoryService {
   constructor(private prisma: PrismaClient) {}
 
   create = async (body: CreateStockMovementDTO, userId: string) => {
-    // 1. Cek ketersediaan produk
     const product = await this.prisma.product.findUnique({
       where: { id: body.productId },
     });
@@ -16,39 +15,33 @@ export class InventoryService {
       throw new ApiError("Product not found", 404);
     }
 
-    // 2. Kalkulasi stok baru berdasarkan tipe pergerakan
     let newStock = product.stock;
-    const absQty = Math.abs(body.qty); // Memastikan angka absolut untuk mempermudah logika
+    const absQty = Math.abs(body.qty); 
 
     if (body.type === StockMovementType.IN) {
       newStock += absQty;
     } else if (body.type === StockMovementType.OUT) {
       newStock -= absQty;
     } else if (body.type === StockMovementType.ADJUSTMENT) {
-      // Adjustment bisa menambah atau mengurangi tergantung input positif/negatif
       newStock += body.qty;
     }
 
-    // 3. Validasi agar stok tidak menjadi minus
     if (newStock < 0) {
       throw new ApiError(`Insufficient stock. Current stock is ${product.stock}`, 400);
     }
 
-    // 4. Eksekusi Database Transaction (Harus berhasil keduanya atau gagal keduanya)
     const [updatedProduct, movement] = await this.prisma.$transaction([
-      // Update stok di tabel Product
       this.prisma.product.update({
         where: { id: body.productId },
         data: { stock: newStock },
       }),
-      // Buat riwayat pergerakan stok
       this.prisma.stockMovement.create({
         data: {
           productId: body.productId,
           qty: body.qty,
           type: body.type,
           notes: body.notes,
-          createdById: userId, // Diambil dari token JWT kasir/admin yang login
+          createdById: userId, 
         },
       }),
     ]);

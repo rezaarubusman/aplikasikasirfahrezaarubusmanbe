@@ -17,7 +17,6 @@ export class InventoryRouter {
   }
 
   private initRoutes = (): void => {
-    // Wajib login untuk akses inventaris
     this.router.use(this.authMiddleware.verifyToken);
     this.router.use(this.authMiddleware.verifyRole("ADMIN"));
 

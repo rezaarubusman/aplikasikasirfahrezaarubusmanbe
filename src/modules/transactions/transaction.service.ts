@@ -1,9 +1,5 @@
 import { PrismaClient } from "../../../generated/prisma/client.js";
-import {
-  PaymentMethod,
-  Role,
-  StockMovementType,
-} from "../../../generated/prisma/enums.js";
+import { PaymentMethod, Role, StockMovementType } from "../../../generated/prisma/enums.js";
 import { AuthUser } from "../../types/auth-user.type.js";
 import { ApiError } from "../../utils/api-error.js";
 import { CreateTransactionDTO } from "./dto/transaction.dto.js";
@@ -12,6 +8,45 @@ export class TransactionService {
   constructor(
     private prisma: PrismaClient
   ) {}
+
+  private generateInvoiceNumber = async () => {
+    const date = new Date();
+    const datePart = date
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+    const prefix =
+      `INV-${datePart}`;
+
+    const latestTransaction =
+      await this.prisma.transaction.findFirst({where: {
+          invoiceNumber: {
+            startsWith: prefix,
+          },
+        },
+        orderBy: {
+          invoiceNumber: "desc",
+        },
+      });
+
+    const latestSequence =
+      latestTransaction ? Number(latestTransaction.invoiceNumber.split("-").at(-1)) : 0;
+
+    return `${prefix}-${String(latestSequence + 1).padStart(4, "0")}`;
+  };
+
+  private transactionInclude = {
+    shift: {
+      include: {
+        cashier: true,
+      },
+    },
+    transactionItems: {
+      include: {
+        product: true,
+      },
+    },
+  } as const;
 
   create = async (cashierId: string, body: CreateTransactionDTO) => {
     const activeShift = await this.prisma.shift.findFirst({
@@ -73,7 +108,6 @@ export class TransactionService {
     const invoiceNumber = await this.generateInvoiceNumber();
 
     const transaction = await this.prisma.$transaction(async (tx) => {
-      // Anti race condition stock check
       for (const item of transactionItems) {
         const result = await tx.product.updateMany({
           where: {
@@ -212,43 +246,4 @@ export class TransactionService {
       throw new ApiError("Debit card number is required", 400);
     }
   };
-
-  private generateInvoiceNumber = async () => {
-    const date = new Date();
-    const datePart = date
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, "");
-    const prefix =
-      `INV-${datePart}`;
-
-    const latestTransaction =
-      await this.prisma.transaction.findFirst({where: {
-          invoiceNumber: {
-            startsWith: prefix,
-          },
-        },
-        orderBy: {
-          invoiceNumber: "desc",
-        },
-      });
-
-    const latestSequence =
-      latestTransaction ? Number(latestTransaction.invoiceNumber.split("-").at(-1)) : 0;
-
-    return `${prefix}-${String(latestSequence + 1).padStart(4, "0")}`;
-  };
-
-  private transactionInclude = {
-    shift: {
-      include: {
-        cashier: true,
-      },
-    },
-    transactionItems: {
-      include: {
-        product: true,
-      },
-    },
-  } as const;
 }

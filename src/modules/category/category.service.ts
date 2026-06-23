@@ -8,7 +8,6 @@ export class CategoryService {
   ) {}
 
   create = async (body: CreateCategoryDTO) => {
-    // Opsional: Cek apakah nama kategori sudah ada agar tidak duplikat
     const existingCategory = await this.prisma.category.findFirst({
       where: { 
         name: body.name,
@@ -38,7 +37,7 @@ export class CategoryService {
         isDeleted: false,
       },
       orderBy: {
-        name: 'asc' // Mengurutkan berdasarkan nama kategori sesuai abjad
+        name: 'asc' 
       }
     });
 
@@ -94,7 +93,6 @@ export class CategoryService {
       throw new ApiError("Category not found", 404);
     }
 
-    // Menggunakan Soft Delete
     await this.prisma.category.update({
       where: { id },
       data: { isDeleted: true },
