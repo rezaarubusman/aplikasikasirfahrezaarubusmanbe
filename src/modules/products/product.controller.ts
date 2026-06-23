@@ -11,7 +11,7 @@ export class ProductController {
     private uploadMiddleware: UploadMiddleware
   ) {}
 
-  create = async (req: Request, res: Response) => {
+  create = async ( req: Request, res: Response ) => {
     const body = plainToInstance(CreateProductDTO, req.body);
     
     const file = req.file;
@@ -24,28 +24,19 @@ export class ProductController {
     res.status(201).send(result);
   };
 
-  findAll = async (
-    req: Request,
-    res: Response
-  ) => {
+  findAll = async ( req: Request, res: Response ) => {
     const result = await this.service.findAll();
 
     res.status(200).send(result);
   };
 
-  findOne = async (
-    req: Request<{ id: string }>,
-    res: Response
-  ) => {
+  findOne = async ( req: Request<{ id: string }>, res: Response ) => {
     const result = await this.service.findById(req.params.id);
 
     res.status(200).send(result);
   };
 
-  update = async (
-    req: Request<{ id: string }>,
-    res: Response
-  ) => {
+  update = async ( req: Request<{ id: string }>, res: Response ) => {
     const body = plainToInstance(UpdateProductDTO, req.body);
 
     const file = req.file;
@@ -59,10 +50,7 @@ export class ProductController {
     res.status(200).send(result);
   };
 
-  delete = async (
-    req: Request<{ id: string }>,
-    res: Response
-  ) => {
+  delete = async ( req: Request<{ id: string }>, res: Response ) => {
     const result = await this.service.delete(req.params.id);
 
     res.status(200).send(result);

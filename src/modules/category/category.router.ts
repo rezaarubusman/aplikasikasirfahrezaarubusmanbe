@@ -18,7 +18,6 @@ export class CategoryRouter {
   }
 
   private initRoutes = (): void => {
-    // Terapkan middleware auth ke semua route categories
     this.router.use(this.authMiddleware.verifyToken);
 
     this.router.get(

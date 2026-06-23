@@ -16,7 +16,7 @@ export class ProductService {
     if (file) {
       const uploadResult = await this.cloudinaryService.uploadImage(
         file,
-        "cashier-app/products" // Folder di Cloudinary
+        "cashier-app/products" 
       );
       imageUrl = uploadResult.url;
     }
@@ -40,7 +40,7 @@ export class ProductService {
           description: body.description,
           price: body.price,
           stock: body.stock ?? 0,
-          image: imageUrl, // Simpan URL gambar dari Cloudinary
+          image: imageUrl, 
           categoryId: body.categoryId,
         },
         include: {
@@ -92,7 +92,6 @@ export class ProductService {
       where: { id },
     });
 
-    // Check if a product with the new name already exists and is not soft-deleted
     if (body.name) {
       const existingProductWithName = await this.prisma.product.findFirst({
         where: { name: body.name, id: { not: id }, isDeleted: false },
@@ -104,14 +103,12 @@ export class ProductService {
     let imageUrl: string | null | undefined = existingProduct.image;
 
     if (file) {
-      // Jika ada file baru diunggah, hapus gambar lama jika ada
       if (existingProduct.image) {
         await this.cloudinaryService.deleteByUrl(existingProduct.image);
       }
       const uploadResult = await this.cloudinaryService.uploadImage(file, "cashier-app/products");
       imageUrl = uploadResult.url;
     } else if (body.image === null || body.image === "") {
-      // Jika frontend secara eksplisit meminta untuk menghapus gambar
       if (existingProduct.image) {
         await this.cloudinaryService.deleteByUrl(existingProduct.image);
       }
@@ -120,7 +117,7 @@ export class ProductService {
 
     const product = await this.prisma.product.update({
       where: { id },
-      data: { ...body, image: imageUrl }, // Update dengan URL gambar baru atau null
+      data: { ...body, image: imageUrl }, 
     });
     return {
       message: "Product updated",
@@ -150,7 +147,7 @@ export class ProductService {
       },
       data: {
         isDeleted: true,
-        image: null, // Hapus juga URL gambar saat soft delete
+        image: null, 
       },
     });
 

@@ -37,7 +37,7 @@ export class ProductRouter {
       "/",
       this.auth.verifyToken,
       this.auth.verifyRole(Role.ADMIN),
-      this.upload.uploadImage().single("image"), // Middleware untuk mengunggah satu file gambar dengan nama field 'image'
+      this.upload.uploadImage().single("image"), 
       this.validation.validateBody(CreateProductDTO),
       this.controller.create
     );
@@ -46,8 +46,8 @@ export class ProductRouter {
       "/:id",
       this.auth.verifyToken,
       this.auth.verifyRole(Role.ADMIN),
-      this.upload.uploadImage().single("image"), // Middleware untuk mengunggah satu file gambar dengan nama field 'image'
-      this.validation.validateBody(UpdateProductDTO), // Validasi body setelah upload
+      this.upload.uploadImage().single("image"), 
+      this.validation.validateBody(UpdateProductDTO), 
       this.controller.update
     );
 
@@ -59,6 +59,6 @@ export class ProductRouter {
     );
   };
 
-  getRouter = (): Router =>
+  getRouter = (): Router => 
     this.router;
 }
