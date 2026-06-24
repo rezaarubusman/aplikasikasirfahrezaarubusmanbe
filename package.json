@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "copy-files": "node -e \"require('fs').cpSync('src/modules/mail/templates', 'dist/src/modules/mail/templates', { recursive: true });\"",
-    "build": "tsc && npm run copy-files",
+    "build": "tsc",
     "start": "node dist/src/index.js",
     "dev": "tsx --watch src/index.ts",
     "postinstall": "prisma generate && prisma migrate deploy",
