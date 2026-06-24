@@ -5,7 +5,7 @@ import {
 
 export class OpenShiftDTO {
   @IsNumber()
-  @Min(0)
+  @Min(1000)
   initialCash!: number;
 }
 

@@ -19,6 +19,10 @@ export class ShiftService {
       throw new ApiError("You still have an active shift", 400);
     }
 
+    if (body.initialCash <= 1000) {
+      throw new ApiError("Modal awal tidak boleh 0", 400);
+    }
+
     const shift = await this.prisma.shift.create({
       data: {
         cashierId,
