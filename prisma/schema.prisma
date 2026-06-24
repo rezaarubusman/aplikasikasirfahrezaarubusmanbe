@@ -107,6 +107,7 @@ model ShiftSummary {
   totalCash           Decimal @db.Decimal(12,2)
   totalDebit          Decimal @db.Decimal(12,2)
   discrepancy         Decimal @db.Decimal(12,2)
+  createdAt           DateTime @default (now())
 }
 
 model Transaction {
