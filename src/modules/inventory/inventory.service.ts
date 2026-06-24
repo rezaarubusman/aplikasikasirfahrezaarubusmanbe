@@ -15,13 +15,23 @@ export class InventoryService {
       throw new ApiError("Product not found", 404);
     }
 
+    if (body.type === StockMovementType.OUT) {
+      throw new ApiError("OUT type automatically on cashier transaction", 400);
+    }
+
+    if (body.type === StockMovementType.IN && product.stock > 0) {
+      throw new ApiError("IN type be used for product with 0 stock", 400);
+    }
+
+    if (body.type === StockMovementType.ADJUSTMENT && product.stock === 0) {
+      throw new ApiError("ADJUSTMENT type be used for product with stock at least 1", 400);
+    }
+
     let newStock = product.stock;
     const absQty = Math.abs(body.qty); 
 
     if (body.type === StockMovementType.IN) {
       newStock += absQty;
-    } else if (body.type === StockMovementType.OUT) {
-      newStock -= absQty;
     } else if (body.type === StockMovementType.ADJUSTMENT) {
       newStock += body.qty;
     }
