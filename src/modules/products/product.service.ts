@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../../generated/prisma/client.js";
 import { CreateProductDTO } from "./dto/products.dto.js";
 import { UpdateProductDTO } from "./dto/products.dto.js";
+import { ProductQueryDTO } from "./dto/products.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 import { CloudinaryService } from "../cloudinary/cloudinary.service.js";
 
@@ -53,20 +54,50 @@ export class ProductService {
     };
   };
 
-  findAll = async () => {
-    const products = await this.prisma.product.findMany({
-      where: {
-          isDeleted: false,
-        },
+  findAll = async (query: ProductQueryDTO) => {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const whereInput = {
+      isDeleted: false,
+      ...(query.category ? { category: { name: query.category } } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              { category: { name: { contains: search, mode: "insensitive" as const } } },
+            ],
+          }
+        : {}),
+    };
+
+    const [products, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        where: whereInput,
         include: {
           category: true,
         },
         orderBy: {
           createdAt: "desc",
         },
-      });
+        skip,
+        take: limit,
+      }),
+      this.prisma.product.count({
+        where: whereInput,
+      }),
+    ]);
 
-    return products;
+    return {
+      message: "Products fetched successfully",
+      data: products,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   };
 
   findById = async (id: string) => {

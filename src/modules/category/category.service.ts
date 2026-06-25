@@ -1,5 +1,5 @@
 import { PrismaClient } from "../../../generated/prisma/client.js";
-import { CreateCategoryDTO, UpdateCategoryDTO } from "./dto/category.dto.js";
+import { CreateCategoryDTO, UpdateCategoryDTO, CategoryQueryDTO } from "./dto/category.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
 export class CategoryService {
@@ -31,19 +31,34 @@ export class CategoryService {
     };
   };
 
-  findAll = async () => {
-    const categories = await this.prisma.category.findMany({
-      where: {
-        isDeleted: false,
-      },
-      orderBy: {
-        name: 'asc' 
-      }
-    });
+  findAll = async (query: CategoryQueryDTO) => {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const whereInput = {
+      isDeleted: false,
+      ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
+    };
+
+    const [categories, total] = await this.prisma.$transaction([
+      this.prisma.category.findMany({
+        where: whereInput,
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.category.count({ where: whereInput }),
+    ]);
 
     return {
       message: "Success fetch all categories",
       data: categories,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   };
 
