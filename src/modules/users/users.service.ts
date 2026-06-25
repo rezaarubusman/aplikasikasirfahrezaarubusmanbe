@@ -1,6 +1,6 @@
 import { PrismaClient } from "../../../generated/prisma/client.js";
 import { hashPassword } from "../../lib/argon.js";
-import { CreateUserDTO, UpdateUserDTO } from "./dto/users.dto.js";
+import { CreateUserDTO, UpdateUserDTO, UserQueryDTO } from "./dto/users.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
 interface UserFilter {
@@ -44,32 +44,55 @@ export class UsersService {
     };
   };
 
-  findAll = async (filter: UserFilter) => {
-    const users = await this.prisma.user.findMany({
-      where: {
-        isDeleted: false,
-          ...(filter.q && {
-          OR: [
-            { name: { contains: filter.q, mode: 'insensitive' } },
-            { username: { contains: filter.q, mode: 'insensitive' } },
-          ],
-        })
-      },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        role: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+  findAll = async (query: UserQueryDTO) => {
+    const { page, limit, search, role } = query;
+    const skip = (page - 1) * limit;
+
+    const whereInput: any = {
+      isDeleted: false,
+    };
+
+    if (role) {
+      whereInput.role = role;
+    }
+
+    if (search) {
+      whereInput.OR = [
+        { name: { contains: search, mode: "insensitive" as const } },
+        { username: { contains: search, mode: "insensitive" as const } },
+      ];
+    }
+
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where: whereInput,
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          role: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.user.count({
+        where: whereInput,
+      }),
+    ]);
 
     return {
       message: "Success fetch all users",
       data: users,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   };
 

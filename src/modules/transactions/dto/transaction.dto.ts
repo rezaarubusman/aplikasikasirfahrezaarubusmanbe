@@ -57,5 +57,5 @@ export class FindTransactionQueryDTO {
 
   @IsOptional()
   @IsString()
-  date?: string; // Format YYYY-MM-DD
+  date?: string;
 }
