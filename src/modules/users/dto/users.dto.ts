@@ -1,11 +1,5 @@
-import {
-  Allow,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MinLength,
-} from "class-validator";
+import { Allow, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsInt, Min, Max } from "class-validator";
+import { Type } from "class-transformer";
 import { Role } from "../../../../generated/prisma/enums.js";
 
 export class CreateUserDTO {
@@ -40,5 +34,28 @@ export class UpdateUserDTO {
 
   @IsOptional()
   @IsEnum(Role, { message: "Role must be ADMIN or CASHIER" })
+  role?: Role;
+}
+
+export class UserQueryDTO {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1, { message: "Page minimal 1" })
+  page: number = 1;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100, { message: "Limit maksimal 100 data per request" })
+  limit: number = 10;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsEnum(Role)
   role?: Role;
 }
