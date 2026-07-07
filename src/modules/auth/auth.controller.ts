@@ -2,10 +2,7 @@ import { plainToInstance } from "class-transformer";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service.js";
 import { AuthUser } from "../../types/auth-user.type.js";
-import {
-  LoginDTO,
-  RegisterDTO,
-} from "./dto/auth.dto.js";
+import { LoginDTO,  RegisterDTO } from "./dto/auth.dto.js";
 
 export class AuthController {
   constructor(
@@ -37,6 +34,9 @@ export class AuthController {
   };
 
   logout = async (req: Request, res: Response) => {
+    const user = this.getUser(res);
+    await this.service.logout(user.id);
+
     res.status(200).send({
       message: "Logout success",
     });

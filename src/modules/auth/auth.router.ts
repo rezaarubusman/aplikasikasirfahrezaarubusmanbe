@@ -2,10 +2,7 @@ import express, { Router } from "express";
 import { AuthController } from "./auth.controller.js";
 import { ValidationMiddleware } from "../../middlewares/validation.middleware.js";
 import { AuthMiddleware } from "../../middlewares/auth.middleware.js";
-import {
-  LoginDTO,
-  RegisterDTO,
-} from "./dto/auth.dto.js";
+import { LoginDTO, RegisterDTO } from "./dto/auth.dto.js";
 
 export class AuthRouter {
   private router: Router;
@@ -16,12 +13,10 @@ export class AuthRouter {
     private authMiddleware: AuthMiddleware
   ) {
     this.router = express.Router();
-
     this.initRoutes();
   }
 
   private initRoutes = (): void => {
-
     this.router.post(
       "/register",
       this.validationMiddleware.validateBody(RegisterDTO),
