@@ -60,7 +60,7 @@ export class App {
     const prismaClient = prisma;
 
     //middlewares
-    const authMiddleware = new AuthMiddleware();
+    const authMiddleware = new AuthMiddleware(prismaClient);
     const validationMiddleware = new ValidationMiddleware();
     const uploadMiddleware = new UploadMiddleware();
     const cloudinaryService = new CloudinaryService();

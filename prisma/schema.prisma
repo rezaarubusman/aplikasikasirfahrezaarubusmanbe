@@ -29,14 +29,15 @@ enum StockMovementType {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  username  String   @unique
-  password  String   // Harus di-hash (misal: bcrypt)
-  role      Role     @default(CASHIER)
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid())
+  name              String
+  username          String   @unique
+  password          String   
+  role              Role     @default(CASHIER)
+  activeSessionId   String? 
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   shifts    Shift[]
 

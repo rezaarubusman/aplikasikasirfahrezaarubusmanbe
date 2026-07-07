@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto"
 import { PrismaClient } from "../../../generated/prisma/client.js";
 import { Role } from "../../../generated/prisma/enums.js";
 import { hashPassword, comparePassword } from "../../lib/argon.js";
@@ -6,20 +7,19 @@ import { RegisterDTO, LoginDTO } from "./dto/auth.dto.js";
 import { ApiError } from "../../utils/api-error.js";
 
 export class AuthService {
-  constructor(
-    private prisma: PrismaClient
-  ) {}
+  constructor(private prisma: PrismaClient) {}
 
-  private generateToken(user: { id: string; username: string; role: Role }) {
+  private generateToken(user: { id: string; username: string; role: Role }, sessionId: string ) {
     return jwt.sign(
       {
         id: user.id,
         username: user.username,
         role: user.role,
+        sessionId,
       },
       process.env.JWT_ACCESS_SECRET!,
       {
-        expiresIn: "1d",
+        expiresIn: "30m",
       }
     );
   }
@@ -70,7 +70,14 @@ export class AuthService {
       throw new ApiError("Invalid credentials", 400);
     }
 
-    const token = this.generateToken(user);
+    const newSessionId = crypto.randomUUID();
+
+    await this.prisma.user.update({
+      where: {id: user.id },
+      data: { activeSessionId: newSessionId}
+    });
+
+    const token = this.generateToken(user, newSessionId);
 
     return {
       message: "Login success",
@@ -101,5 +108,12 @@ export class AuthService {
       username: user.username,
       role: user.role,
     };
+  };
+
+  logout = async (userId: string) => {
+    await this.prisma.user.update({
+      where: { id: userId},
+      data: {activeSessionId: null}
+    });
   };
 }
